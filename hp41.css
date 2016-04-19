@@ -1,0 +1,11 @@
+/* The HP-41 LCD style font */
+@font-face {
+font-family: HP41;
+src: url(font/HP41CharacterSetXtended.ttf);
+}
+
+<style>
+  html, head, body { padding:0; margin:0; }
+  html,body { height: 100%; margin: 0px; }
+  body { background-color: #dddddd }
+</style>
