@@ -9,6 +9,15 @@
 <body>
 </body>
 <script type="text/javascript">
+function preventBackspaceHandler(evt) {
+    evt = evt || window.event;
+    if (evt.keyCode == 8 || evt.keyCode == 9) {
+        return false;
+    }
+}
+
+document.onkeydown = preventBackspaceHandler;
+
 Elm.HP41.fullscreen();
 </script>
 </html>
