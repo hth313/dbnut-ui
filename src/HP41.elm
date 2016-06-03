@@ -12,6 +12,7 @@ with dbnut.
 import Dict
 import Html exposing (Html)
 import Html.App as Html
+import Html.Events
 import Keyboard
 import Json.Encode as Encode
 import Json.Decode as Decode
@@ -141,7 +142,7 @@ receiveMessage s =
 webSocket = "ws://localhost:8080"
 
 
--- Convert a key press to a key code event
+-- Convert a key press/release to a key code event
 key ctor k = case Dict.get k keyCodes of
                 Just kc -> ctor kc
                 Nothing -> Null
@@ -164,11 +165,11 @@ keyCodes =
                 , ( 73, keyCOS)   -- I
                 , ( 74, keyTAN)   -- J
                 , ( 16, keySHIFT) -- shift
-                , ( 74, keyXEQ)   -- K
-                , ( 75, keySTO)   -- L
-                , ( 76, keyRCL)   -- M
+                , ( 75, keyXEQ)   -- K
+                , ( 76, keySTO)   -- L
+                , ( 77, keyRCL)   -- M
                 , (  9, keySST)   -- TAB
-                , ( 77, keyENTER) -- N
+                , ( 78, keyENTER) -- N
                 , ( 13, keyENTER) -- enter
                 , ( 79, keyCHS)   -- O
                 , ( 80, keyEEX)   -- P
@@ -199,64 +200,6 @@ keyCodes =
                 , (188, keyDOT)   -- .
                 , (190, keyDOT)   -- ,
                 ]
-
-
-
-{-
-    112 -> keyOn   -- F1
-    113 -> keyUSER -- F2
-    114 -> keyPRGM -- F3
-    115 -> keyALPHA -- F4
-    116 -> keyRUN   -- F5
-    65 -> keySIGMA  -- A
-    66 -> keyINV    -- B
-    67 -> keySQRT   -- C
-    68  -> keyLOG   -- D
-    69  -> keyLN   -- E
-    70  -> keySWAP  -- F
-    71 -> keyRDN -- G
-    72 -> keySIN   -- H
-    73 -> keyCOS -- I
-    74 -> keyTAN  -- J
-    16 -> keySHIFT -- shift
-    74 -> keyXEQ -- K
-    75 -> keySTO -- L
-    76 -> keyRCL -- M
-    keySST
-    77 -> keyENTER
-    13 -> keyENTER
-    79 -> keyCHS
-    80 -> keyEEX
-    8 -> keyARROW
-    81 -> keyMINUS
-    82 -> key7
-    83 -> key8
-    84 -> key9
-    85 -> keyPLUS
-    86 -> key4
-    87 -> key5
-    88 -> key6
-    89 -> keyMUL
-    90 -> key1
-    32 -> key0
-
-    48 -> key0   -- 0
-    49 -> key1   -- 1
-    50 -> key2   -- 2
-    51 -> key3   -- 3
-    52 -> key4   -- 4
-    53 -> key5
-    54 -> key6
-    55 -> key7
-    56 -> key8
-    57 -> key9
-
-
-    191 -> keyDIV  -- /
-    187 -> key2    -- =
-    188 -> keyDOT  -- .
-    190 -> keyDOT  -- ,
--}
 
 -- Key codes.
 keyON    = 0x18
