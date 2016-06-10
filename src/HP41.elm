@@ -18,8 +18,11 @@ import Json.Encode as Encode
 import Json.Decode as Decode
 import Json.Decode exposing ((:=), decodeString)
 import Maybe exposing (withDefault)
+import Set exposing (Set)
+import Set as Set
 import Svg exposing (..)
-import Svg.Attributes  exposing (..)
+import Svg.Attributes exposing (..)
+import Svg.Events exposing (onMouseDown, onMouseUp)
 import Task
 import Time
 import WebSocket
@@ -41,42 +44,102 @@ offsetLCD = "30"
 -- background = image calcWidth calcHeight "image/hp41.png"
 
 calc model =
-  Svg.svg [ width (toString calcWidth)
-          , height (toString calcHeight)]
-     [ image [ width (toString calcWidth)
-             , height (toString calcHeight)
-             , xlinkHref "image/hp41.png"
-             ]
+  let keyHeight = 31
+      normalKey = keyImage "33" keyHeight
+
+      wideKey = keyImage "80" keyHeight
+
+      keyImage w h xpos ypos name code =
+        let (imageName, h', ypos') =
+              if Set.member code (model.pressed)
+              then (name ++ "_pressed", h + 2, ypos - 2)
+              else (name, h, ypos)
+
+        in image [ width  w, height (toString h')
+                 , x xpos, y (toString ypos')
+                 , xlinkHref ("image/key_" ++ imageName ++ ".png")
+                 , onMouseDown (KeyEvent True code)
+                 , onMouseUp   (KeyEvent False code)
+                 ]
              []
-     , text' [ fontSize "23"
-             , Svg.Attributes.style "font-family: 'HP41'"
-             , x offsetLCD
-             , xmlSpace "preserve"
-             , y "48" ]
-         [ text (model.lcd) ]
-     , text' [ fontSize "11"
-             , x offsetLCD
-             , y "62"
-             , xmlSpace "preserve"
-             , Svg.Attributes.style "font-family: 'Andale Mono'"]
-         [ text (model.annunciators) ]
-     ]
+
+  in Svg.svg [ width (toString calcWidth)
+             , height (toString calcHeight)]
+       [ image [ width (toString calcWidth)
+               , height (toString calcHeight)
+               , xlinkHref "image/hp41.png"
+               ]
+           []
+       , text' [ fontSize "23"
+               , Svg.Attributes.style "font-family: 'HP41'"
+               , x offsetLCD
+               , xmlSpace "preserve"
+               , y "48" ]
+           [ text (model.lcd) ]
+       , text' [ fontSize "11"
+               , x offsetLCD
+               , y "62"
+               , xmlSpace "preserve"
+               , Svg.Attributes.style "font-family: 'Andale Mono'"]
+           [ text (model.annunciators) ]
+
+       , normalKey  "35" 148 "SIGMA" keySIGMA
+       , normalKey  "82" 148 "INV"   keyINV
+       , normalKey "129" 148 "SQRT"  keySQRT
+       , normalKey "176" 148 "LOG"   keyLOG
+       , normalKey "223" 148 "LN"    keyLN
+
+       , normalKey  "35" 197 "SWAP"  keySWAP
+       , normalKey  "82" 197 "RDN"   keyRDN
+       , normalKey "129" 197 "SIN"   keySIN
+       , normalKey "176" 197 "COS"   keyCOS
+       , normalKey "223" 197 "TAN"   keyTAN
+
+       , normalKey  "35" 246 "SHIFT" keySHIFT
+       , normalKey  "82" 246 "XEQ"   keyXEQ
+       , normalKey "129" 246 "STO"   keySTO
+       , normalKey "176" 246 "RCL"   keyRCL
+       , normalKey "223" 246 "SST"   keySST
+
+       , wideKey    "35" 295 "ENTER" keyENTER
+       , normalKey "129" 295 "CHS"   keyCHS
+       , normalKey "176" 295 "EEX"   keyEEX
+       , normalKey "223" 295 "ARROW" keyARROW
+
+       , normalKey  "35" 344 "MINUS" keyMINUS
+       , normalKey  "98" 344 "7"     key7
+       , normalKey "161" 344 "8"     key8
+       , normalKey "224" 344 "9"     key9
+
+       , normalKey  "35" 393 "PLUS"  keyPLUS
+       , normalKey  "98" 393 "4"     key4
+       , normalKey "161" 393 "5"     key5
+       , normalKey "224" 393 "6"     key6
+
+       , normalKey  "35" 442 "MUL"   keyMUL
+       , normalKey  "98" 442 "1"     key1
+       , normalKey "161" 442 "2"     key2
+       , normalKey "224" 442 "3"     key3
+
+       , normalKey  "35" 491 "DIV"   keyDIV
+       , normalKey  "98" 491 "0"     key0
+       , normalKey "161" 491 "DOT"   keyDOT
+       , normalKey "224" 491 "RUN"   keyRUN
+       ]
 
 
 type alias Model = {
     lcd : String
   , annunciators : String
+  , pressed : Set Int
 }
 
 
 init : (Model, Cmd Msg)
-init = ({ lcd = "hello world!", annunciators = "BAT USER GRAD SHIFT O1234 PRGM ALPHA" },
+init = ({ lcd = ""
+        , annunciators = ""
+        , pressed = Set.empty },
         Cmd.none)
-
-
-blankLCD : Model
-blankLCD = { lcd = "            "
-           , annunciators = "                                    " }
 
 
 type Msg = UpdateLCD String String
@@ -89,10 +152,17 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     UpdateLCD text ann -> ({ model | lcd = text, annunciators = ann }, Cmd.none)
-    KeyEvent pressed kc -> (model, Task.perform (\_ -> SendMessage "")
-                                                (sendKey pressed kc) Time.now)
+    KeyEvent pressed kc -> (updatePressedKey pressed kc model,
+                              Task.perform (\_ -> SendMessage "")
+                                           (sendKey pressed kc) Time.now)
     SendMessage body -> (model, WebSocket.send webSocket body)
     Null -> (model, Cmd.none)
+
+
+-- Update key press status
+updatePressedKey down kc model =
+  let f = if down then Set.insert else Set.remove
+  in { model | pressed = f kc (model.pressed) }
 
 
 view : Model -> Html Msg
