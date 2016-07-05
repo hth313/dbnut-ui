@@ -63,6 +63,24 @@ calc model =
                  ]
              []
 
+      rockerKey xpos imageName code dir buddyCode =
+        let dx = if Set.member code (model.pressed) then
+                   2 * dir
+
+                 else if Set.member buddyCode (model.pressed) then
+                   -2 * dir
+
+                 else
+                   0
+
+        in image [ width "52", height "19"
+                 , x (toString (xpos + dx)), y "90"
+                 , xlinkHref ("image/key_" ++ imageName ++ ".png")
+                 , onMouseDown (KeyEvent True code)
+                 , onMouseUp   (KeyEvent False code)
+                 ]
+             []
+
   in Svg.svg [ width (toString calcWidth)
              , height (toString calcHeight)]
        [ image [ width (toString calcWidth)
@@ -82,6 +100,11 @@ calc model =
                , xmlSpace "preserve"
                , Svg.Attributes.style "font-family: 'Andale Mono'"]
            [ text (model.annunciators) ]
+
+       , rockerKey   20      "ON"    keyON    -1 keyUSER
+       , rockerKey   77      "USER"  keyUSER   1 keyON
+       , rockerKey  169      "PRGM"  keyPRGM  -1 keyALPHA
+       , rockerKey  226      "ALPHA" keyALPHA  1 keyPRGM
 
        , normalKey  "35" 148 "SIGMA" keySIGMA
        , normalKey  "82" 148 "INV"   keyINV
