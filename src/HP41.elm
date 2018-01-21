@@ -88,7 +88,7 @@ calc model =
                     , height (toString h_)
                     , x xpos
                     , y (toString ypos_)
-                    , xlinkHref ("image/key_" ++ imageName ++ ".png")
+                    , xlinkHref ("image-ladybug/key_" ++ imageName ++ ".png")
                     , onMouseDown (KeyEvent True code)
                     , onMouseUp (KeyEvent False code)
                     ]
@@ -109,7 +109,7 @@ calc model =
                     , height "19"
                     , x (toString (xpos + dx))
                     , y "90"
-                    , xlinkHref ("image/key_" ++ imageName ++ ".png")
+                    , xlinkHref ("image-ladybug/key_" ++ imageName ++ ".png")
                     , onMouseDown (KeyEvent True code)
                     , onMouseUp (KeyEvent False code)
                     ]
@@ -122,7 +122,7 @@ calc model =
             [ image
                 [ width (toString calcWidth)
                 , height (toString calcHeight)
-                , xlinkHref "image/hp41.png"
+                , xlinkHref "image-ladybug/ladybug.png"
                 ]
                 []
             , text_
