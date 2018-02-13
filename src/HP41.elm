@@ -61,9 +61,6 @@ offsetLCD =
 
 
 
--- background = image calcWidth calcHeight "image/hp41.png"
-
-
 calc model =
     let
         keyHeight =
@@ -88,7 +85,7 @@ calc model =
                     , height (toString h_)
                     , x xpos
                     , y (toString ypos_)
-                    , xlinkHref ("image-ladybug/key_" ++ imageName ++ ".png")
+                    , xlinkHref ("image/key_" ++ imageName ++ ".png")
                     , onMouseDown (KeyEvent True code)
                     , onMouseUp (KeyEvent False code)
                     ]
@@ -109,7 +106,7 @@ calc model =
                     , height "19"
                     , x (toString (xpos + dx))
                     , y "90"
-                    , xlinkHref ("image-ladybug/key_" ++ imageName ++ ".png")
+                    , xlinkHref ("image/key_" ++ imageName ++ ".png")
                     , onMouseDown (KeyEvent True code)
                     , onMouseUp (KeyEvent False code)
                     ]
@@ -122,7 +119,7 @@ calc model =
             [ image
                 [ width (toString calcWidth)
                 , height (toString calcHeight)
-                , xlinkHref "image-ladybug/ladybug.png"
+                , xlinkHref "image/hp41.png"
                 ]
                 []
             , text_
