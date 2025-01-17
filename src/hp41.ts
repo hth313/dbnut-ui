@@ -1,3 +1,10 @@
+import {RequestManager, WebSocketTransport, Client} from "@open-rpc/client-js";
+
+const transport = new WebSocketTransport("http://localhost:8080");
+const client = new Client(new RequestManager([transport]));
+
+client.onNotification(lcdUpdate);
+
 const keyON = 0x18;
 const keyUSER = 0xC6;
 const keyPRGM = 0xC5;
@@ -47,13 +54,13 @@ function preventBackspaceHandler(evt) {
 
 function rockerKey(xpos, name, code, dir, buddyCode) {
   const image = document.createElementNS('http://www.w3.org/2000/svg','image');
-  image.setAttribute('width', 52);
-  image.setAttribute('height', 19);
+  image.setAttribute('width', "52");
+  image.setAttribute('height', "19");
   image.setAttribute('x', xpos);
-  image.setAttribute('y', 90);
+  image.setAttribute('y', "90");
   image.setAttribute('href', `image/key_${name}.png`);
   image.setAttribute('id', name);
-  addKey(image);
+  addKey(image, code, buddyCode);
 }
 
 function normalKey(xpos, ypos, name, code) {
@@ -67,16 +74,27 @@ function wideKey(xpos, ypos, name, code) {
 function keyImage(width, xpos, ypos, name, code) {
   const image = document.createElementNS('http://www.w3.org/2000/svg','image');
   image.setAttribute('width', width);
-  image.setAttribute('height', 31);
+  image.setAttribute('height', "31");
   image.setAttribute('x', xpos);
   image.setAttribute('y', ypos);
   image.setAttribute('href', `image/key_${name}.png`);
-  addKey(image);
+  addKey(image, code, undefined);
 }
 
-function addKey(image) {
+function addKey(image, code, buddyCode) {
   const calculator = document.getElementById("calculator");
-  calculator.appendChild(image);
+  const keyElement: HTMLElement = calculator.appendChild(image);
+  keyElement.onmousedown = function (event: MouseEvent) {
+    keyMouseEvent("key_press", event, image, code);
+  }
+  keyElement.onmouseup = function (event: MouseEvent) {
+    keyMouseEvent("key_release", event, image, code); }
+}
+
+function keyMouseEvent(what, event, image, code): void {
+  client.notify({method: "say", params: ["key " + what + " " + code]});
+  console.log({ method: what, params: { code: code, timestamp: Date.now() } });
+  client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
 }
 
 function render() {
@@ -126,3 +144,23 @@ function render() {
 
 document.onkeydown = preventBackspaceHandler;
 render();
+
+function lcdUpdate(notification): void {
+  console.log("got a notification");
+  console.log(notification);
+  if (notification.method == "lcd-update") {
+    const lcdText = document.getElementById("lcdText");
+    lcdText.textContent = notification.params.lcd;
+    const lcdAnn = document.getElementById("lcdAnnunciators");
+    lcdAnn.textContent = notification.params.ann;
+  }
+}
+
+async function askServer() {
+  const result = await client.request({method: "foo", params: [2, 2]});
+  console.log(result)
+  await client.notify({method: "say", params: ["This is from your new client"]});
+}
+
+
+askServer();
