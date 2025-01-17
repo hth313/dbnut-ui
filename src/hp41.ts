@@ -5,6 +5,14 @@ const client = new Client(new RequestManager([transport]));
 
 client.onNotification(lcdUpdate);
 
+interface KeyInfo {
+  normal: HTMLImageElement;
+  pressed: HTMLImageElement;
+  xpos: number;
+}
+
+const keyMap = new Map<number, KeyInfo>()
+
 const keyON = 0x18;
 const keyUSER = 0xC6;
 const keyPRGM = 0xC5;
@@ -60,7 +68,7 @@ function rockerKey(xpos, name, code, dir, buddyCode) {
   image.setAttribute('y', "90");
   image.setAttribute('href', `image/key_${name}.png`);
   image.setAttribute('id', name);
-  addKey(image, code, buddyCode);
+  addKey(image, undefined, code, buddyCode, xpos);
 }
 
 function normalKey(xpos, ypos, name, code) {
@@ -71,30 +79,57 @@ function wideKey(xpos, ypos, name, code) {
   keyImage(80, xpos, ypos, name, code);
 }
 
-function keyImage(width, xpos, ypos, name, code) {
+function keyImage(width: number, xpos: number, ypos: number, name: string, code: number) {
   const image = document.createElementNS('http://www.w3.org/2000/svg','image');
-  image.setAttribute('width', width);
+  image.setAttribute('width', width.toString());
   image.setAttribute('height', "31");
-  image.setAttribute('x', xpos);
-  image.setAttribute('y', ypos);
+  image.setAttribute('x', xpos.toString());
+  image.setAttribute('y', ypos.toString());
   image.setAttribute('href', `image/key_${name}.png`);
-  addKey(image, code, undefined);
+  const imagePressed = document.createElementNS('http://www.w3.org/2000/svg','image');
+  imagePressed.setAttribute('width', width.toString());
+  imagePressed.setAttribute('height', "31");
+  imagePressed.setAttribute('x', (xpos + 2).toString());
+  imagePressed.setAttribute('y', (ypos - 2).toString());
+  imagePressed.setAttribute('href', `image/key_${name}_pressed.png`);
+  addKey(image, imagePressed, code, undefined, xpos);
 }
 
-function addKey(image, code, buddyCode) {
+function addKey(image, imagePressed, code, buddyCode, xpos) {
   const calculator = document.getElementById("calculator");
-  const keyElement: HTMLElement = calculator.appendChild(image);
-  keyElement.onmousedown = function (event: MouseEvent) {
-    keyMouseEvent("key_press", event, image, code);
+  calculator.appendChild(image);
+  keyMap.set(code, { normal: image, pressed: imagePressed, xpos: xpos });
+  image.onmousedown = function (event: MouseEvent) {
+    keyMouseEvent("key_press", event, code);
   }
-  keyElement.onmouseup = function (event: MouseEvent) {
-    keyMouseEvent("key_release", event, image, code); }
+  image.onmouseup = function (event: MouseEvent) {
+    keyMouseEvent("key_release", event, code); }
+
+  if (imagePressed) {
+    imagePressed.onmousedown = function (event: MouseEvent) {
+      keyMouseEvent("key_press", event, code);
+    }
+    imagePressed.onmouseup = function (event: MouseEvent) {
+      keyMouseEvent("key_release", event, code); }
+  }
 }
 
-function keyMouseEvent(what, event, image, code): void {
-  client.notify({method: "say", params: ["key " + what + " " + code]});
-  console.log({ method: what, params: { code: code, timestamp: Date.now() } });
-  client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
+function keyMouseEvent(what, event, code): void {
+  if (event.button === 0) {  // left mouse button
+    client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
+    const info = keyMap.get(code);
+    const calculator = document.getElementById("calculator");
+    if (info.pressed) {  // Normal key with different image
+      if (what == "key_press") {
+	calculator.replaceChild(info.pressed, info.normal);
+      } else {
+	calculator.replaceChild(info.normal, info.pressed);
+      }
+    } else {
+      // adjust position of rocker key
+
+    }
+  }
 }
 
 function render() {
@@ -146,8 +181,6 @@ document.onkeydown = preventBackspaceHandler;
 render();
 
 function lcdUpdate(notification): void {
-  console.log("got a notification");
-  console.log(notification);
   if (notification.method == "lcd-update") {
     const lcdText = document.getElementById("lcdText");
     lcdText.textContent = notification.params.lcd;
