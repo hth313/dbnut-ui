@@ -195,13 +195,79 @@ function render() {
   normalKey(98, 491, "0", key0);
   normalKey(161, 491, "DOT", keyDOT);
   normalKey(224, 491, "RUN", keyRUN);
+
+  document.onkeydown = function (event) {
+    const code = keyCodes[event.key];
+    if (code) {
+      keyMouseEvent("key_press", code);
+    }
+  }
+  document.onkeyup = function (event) {
+    const code = keyCodes[event.key];
+    if (code) {
+      keyMouseEvent("key_release", code);
+    }
+  }
+}
+
+const keyCodes = {
+  "F1": keyON,
+  "F2": keyUSER,
+  "F3": keyPRGM,
+  "F4": keyALPHA,
+  "F5": keyRUN,
+  "a": keySIGMA,
+  "b": keyINV,
+  "c": keySQRT,
+  "d": keyLOG,
+  "e": keyLN,
+  "f": keySWAP,
+  "g": keyRDN,
+  "h": keySIN,
+  "i": keyCOS,
+  "j": keyTAN,
+  "Shift": keySHIFT,
+  "k": keyXEQ,
+  "l": keySTO,
+  "m": keyRCL,
+  "Tab": keySST,
+  "n": keyENTER,
+  "Enter": keyENTER,
+  "o": keyCHS,
+  "p": keyEEX,
+  "Backspace": keyARROW,
+  "q": keyMINUS,
+  "r": key7,
+  "s": key8,
+  "t": key9,
+  "u": keyPLUS,
+  "v": key4,
+  "w": key5,
+  "x": key6,
+  "y": keyMUL,
+  "z": key1,
+  "Space": key0,
+  "0": key0,
+  "1": key1,
+  "2": key2,
+  "3": key3,
+  "4": key4,
+  "5": key5,
+  "6": key6,
+  "7": key7,
+  "8": key8,
+  "9": key9,
+  "/": keyDIV,
+  "=": key2,
+  ".": keyDOT,
+  ",": keyDOT,
 }
 
 document.onkeydown = preventBackspaceHandler;
 render();
 
 function lcdUpdate(notification): void {
-  if (notification.method == "lcd-update") {
+  if (notification.method === "lcd-update") {
     const lcdText = document.getElementById("lcdText");
     lcdText.textContent = notification.params.lcd;
     const lcdAnn = document.getElementById("lcdAnnunciators");
