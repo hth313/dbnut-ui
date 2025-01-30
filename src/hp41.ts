@@ -153,7 +153,7 @@ function keyMouseEvent(what, code): void {
 }
 
 function render() {
-  console.log("Hello hp41");
+  //console.log("Hello hp41");
   const lcdText = document.getElementById("lcdText");
   lcdText.textContent = "MEMORY LOST";
   rockerKey(20, "ON", keyON, -1, keyUSER);
@@ -275,11 +275,11 @@ function lcdUpdate(notification): void {
   }
 }
 
-async function askServer() {
-  const result = await client.request({method: "foo", params: [2, 2]});
-  console.log(result)
-  await client.notify({method: "say", params: ["This is from your new client"]});
-}
+// async function askServer() {
+//   const result = await client.request({method: "foo", params: [2, 2]});
+//   console.log(result)
+//   await client.notify({method: "say", params: ["This is from your new client"]});
+// }
 
 
-askServer();
+// askServer();
