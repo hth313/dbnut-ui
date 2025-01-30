@@ -60,7 +60,9 @@ function preventBackspaceHandler(evt) {
   }
 }
 
-function rockerKey(xpos, name, code, dir, buddyCode) {
+let rocker = new Map()
+
+function rockerKey(xpos, name, code, direction, buddyCode) {
   const image = document.createElementNS('http://www.w3.org/2000/svg','image');
   image.setAttribute('width', "52");
   image.setAttribute('height', "19");
@@ -68,7 +70,8 @@ function rockerKey(xpos, name, code, dir, buddyCode) {
   image.setAttribute('y', "90");
   image.setAttribute('href', `image/key_${name}.png`);
   image.setAttribute('id', name);
-  addKey(image, undefined, code, buddyCode, xpos);
+  addKey(image, undefined, code, xpos);
+  rocker.set(code, { buddy: buddyCode, x: xpos, direction: direction });
 }
 
 function normalKey(xpos, ypos, name, code) {
@@ -79,7 +82,7 @@ function wideKey(xpos, ypos, name, code) {
   keyImage(80, xpos, ypos, name, code);
 }
 
-function keyImage(width: number, xpos: number, ypos: number, name: string, code: number) {
+function keyImage(width: number, xpos: number, ypos: number, name: string, code: number): void {
   const image = document.createElementNS('http://www.w3.org/2000/svg','image');
   image.setAttribute('width', width.toString());
   image.setAttribute('height', "31");
@@ -92,42 +95,59 @@ function keyImage(width: number, xpos: number, ypos: number, name: string, code:
   imagePressed.setAttribute('x', (xpos + 2).toString());
   imagePressed.setAttribute('y', (ypos - 2).toString());
   imagePressed.setAttribute('href', `image/key_${name}_pressed.png`);
-  addKey(image, imagePressed, code, undefined, xpos);
+  addKey(image, imagePressed, code, xpos);
 }
 
-function addKey(image, imagePressed, code, buddyCode, xpos) {
+function addKey(image, imagePressed, code, xpos): void {
   const calculator = document.getElementById("calculator");
   calculator.appendChild(image);
   keyMap.set(code, { normal: image, pressed: imagePressed, xpos: xpos });
   image.onmousedown = function (event: MouseEvent) {
-    keyMouseEvent("key_press", event, code);
+    mouseEvent("key_press", event, code);
   }
   image.onmouseup = function (event: MouseEvent) {
-    keyMouseEvent("key_release", event, code); }
+    mouseEvent("key_release", event, code); }
 
   if (imagePressed) {
     imagePressed.onmousedown = function (event: MouseEvent) {
-      keyMouseEvent("key_press", event, code);
+      mouseEvent("key_press", event, code);
     }
     imagePressed.onmouseup = function (event: MouseEvent) {
-      keyMouseEvent("key_release", event, code); }
+      mouseEvent("key_release", event, code); }
   }
 }
 
-function keyMouseEvent(what, event, code): void {
-  if (event.button === 0) {  // left mouse button
-    client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
-    const info = keyMap.get(code);
-    const calculator = document.getElementById("calculator");
-    if (info.pressed) {  // Normal key with different image
-      if (what == "key_press") {
-	calculator.replaceChild(info.pressed, info.normal);
-      } else {
-	calculator.replaceChild(info.normal, info.pressed);
-      }
-    } else {
-      // adjust position of rocker key
+function mouseEvent(what, event, code): void {
+  if (event.button === 0) {  // left mouse button pressed
+    keyMouseEvent(what, code)
+  }
+}
 
+function positionRockerKey(what, rockerInfo, keyInfo, direction) {
+  if (what === "key_press") {
+    const dx = 2 * direction;
+    keyInfo.normal.style.x = rockerInfo.x + dx;
+  } else {
+    keyInfo.normal.style.x = rockerInfo.x;
+  }
+}
+
+function keyMouseEvent(what, code): void {
+  client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
+  const rockerInfo = rocker.get(code);
+  const info = keyMap.get(code);
+  const calculator = document.getElementById("calculator");
+  if (rockerInfo) {
+    // Rocker key is actually two that move left or right together
+    const buddy = keyMap.get(rockerInfo.buddy);
+    positionRockerKey(what, rockerInfo, info, rockerInfo.direction);
+    positionRockerKey(what, rocker.get(rockerInfo.buddy), keyMap.get(rockerInfo.buddy), rockerInfo.direction);
+  } else {
+    // Ordinary key
+    if (what === "key_press") {
+      calculator.replaceChild(info.pressed, info.normal);
+    } else {
+      calculator.replaceChild(info.normal, info.pressed);
     }
   }
 }
