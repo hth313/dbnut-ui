@@ -9,6 +9,11 @@
     "@types/ws": "^8.5.13",
     "esbuild": "^0.24.2"
   },
+  "overrides": {
+    "tr46": ">=2.1.0",
+    "webidl-conversions": ">=7.0.0",
+    "whatwg-url": ">=8.2.0"
+  },
   "scripts": {
     "compile": "npm run check-types && node esbuild.js",
     "check-types": "tsc --noEmit",
