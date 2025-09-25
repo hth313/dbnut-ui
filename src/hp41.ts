@@ -3,19 +3,26 @@ import {RequestManager, WebSocketTransport, Client} from "@open-rpc/client-js";
 const transport = new WebSocketTransport("http://localhost:8080");
 const client = new Client(new RequestManager([transport]));
 
-let heartbeatInterval: number;
+let heartbeatInterval: NodeJS.Timeout;
 
 // Add connection event handlers
 transport.connection.addEventListener("open", () => {
   console.log("WebSocket connected");
-  // Start heartbeat every 30 seconds
+  // Start heartbeat every 15 seconds
   heartbeatInterval = setInterval(() => {
     try {
-      client.notify({ method: "ping", params: {} });
+      // Check if connection is still open before sending ping
+      if (transport.connection.readyState === WebSocket.OPEN) {
+        client.notify({ method: "ping", params: {} });
+      } else {
+        console.log("Connection not open, clearing heartbeat");
+        clearInterval(heartbeatInterval);
+      }
     } catch (e) {
       console.log("Failed to send ping:", e);
+      clearInterval(heartbeatInterval);
     }
-  }, 30000);
+  }, 15000);
 });
 
 transport.connection.addEventListener("close", () => {
