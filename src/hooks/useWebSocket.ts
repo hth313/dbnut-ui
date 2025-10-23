@@ -10,6 +10,7 @@ export function useWebSocket(url: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const hasConnectedRef = useRef(false);
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
 
@@ -18,7 +19,10 @@ export function useWebSocket(url: string) {
     wsRef.current = ws;
 
     ws.addEventListener("open", () => {
-      console.log("WebSocket connected");
+      if (!hasConnectedRef.current) {
+        console.log("WebSocket connected");
+        hasConnectedRef.current = true;
+      }
       setIsConnected(true);
 
       // Start heartbeat every 30 seconds
@@ -50,23 +54,22 @@ export function useWebSocket(url: string) {
     });
 
     ws.addEventListener("close", (event) => {
-      console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason);
       setIsConnected(false);
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }
 
-      // Don't auto-reload - just log the disconnection
-      // The user can manually refresh if needed
-      if (event.code === 1006) {
-        console.log("Connection failed - server may not be running at", url);
-      } else {
-        console.log("Connection closed. Refresh the page to reconnect.");
+      // Only log if we've successfully connected before (to avoid React StrictMode noise)
+      if (hasConnectedRef.current) {
+        console.log("WebSocket disconnected. Code:", event.code);
+        if (event.code !== 1006) {
+          console.log("Connection closed. Refresh the page to reconnect.");
+        }
       }
     });
 
-    ws.addEventListener("error", (error) => {
-      console.log("WebSocket error:", error);
+    ws.addEventListener("error", () => {
+      // Suppress error logging - close event will handle it
     });
 
     ws.addEventListener("message", (event) => {
