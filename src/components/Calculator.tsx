@@ -192,7 +192,9 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     lcdTextElement.setAttribute('y', '48');
     lcdTextElement.setAttribute('xml:space', 'preserve');
     lcdTextElement.setAttribute('style', 'white-space: pre');
-    lcdTextElement.textContent = lcdText || "MEMORY LOST";
+    // Replace regular spaces with non-breaking spaces so they render in SVG
+    const initialText = (lcdText || "MEMORY LOST").replace(/ /g, '\u00A0');
+    lcdTextElement.textContent = initialText;
     svg.appendChild(lcdTextElement);
 
     // Add annunciators
@@ -256,7 +258,9 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     if (!svgRef.current) return;
     const lcdTextElement = svgRef.current.querySelector('#lcdText');
     if (lcdTextElement) {
-      lcdTextElement.textContent = lcdText;
+      // Replace regular spaces with non-breaking spaces so they render in SVG
+      const displayText = lcdText.replace(/ /g, '\u00A0');
+      lcdTextElement.textContent = displayText;
     }
   }, [lcdText]);
 
