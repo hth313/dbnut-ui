@@ -191,10 +191,7 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     lcdTextElement.setAttribute('x', '30');
     lcdTextElement.setAttribute('y', '48');
     lcdTextElement.setAttribute('xml:space', 'preserve');
-    lcdTextElement.setAttribute('style', 'white-space: pre');
-    // Replace regular spaces with non-breaking spaces so they render in SVG
-    const initialText = (lcdText || "MEMORY LOST").replace(/ /g, '\u00A0');
-    lcdTextElement.textContent = initialText;
+    lcdTextElement.textContent = lcdText || "MEMORY LOST";
     svg.appendChild(lcdTextElement);
 
     // Add annunciators
@@ -204,7 +201,6 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     annElement.setAttribute('x', '30');
     annElement.setAttribute('y', '62');
     annElement.setAttribute('xml:space', 'preserve');
-    annElement.setAttribute('style', 'white-space: pre');
     annElement.setAttribute('font-family', 'Andale Mono');
     annElement.textContent = annunciators || "";
     svg.appendChild(annElement);
@@ -258,8 +254,8 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     if (!svgRef.current) return;
     const lcdTextElement = svgRef.current.querySelector('#lcdText');
     if (lcdTextElement) {
-      // Replace regular spaces with non-breaking spaces so they render in SVG
-      const displayText = lcdText.replace(/ /g, '\u00A0');
+      // Empty string means blank display - use a single space to clear it visually
+      const displayText = lcdText === '' ? ' ' : lcdText;
       lcdTextElement.textContent = displayText;
       console.log('LCD updated - length:', lcdText.length, 'value:', JSON.stringify(lcdText));
     }
