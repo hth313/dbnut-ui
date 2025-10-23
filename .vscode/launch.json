@@ -7,10 +7,15 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "file": "${workspaceFolder}/hp41.html",
+            "name": "Launch Chrome against Vite dev server",
+            "url": "http://localhost:4141",
             "webRoot": "${workspaceFolder}",
-            "runtimeArgs": ["--disable-web-security"]
+            "preLaunchTask": "dev",
+            "serverReadyAction": {
+                "pattern": "Local:.*?(https?://\\S+|https?://\\[\\S+\\])",
+                "uriFormat": "%s",
+                "action": "debugWithChrome"
+            }
         }
     ]
 }
