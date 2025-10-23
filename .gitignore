@@ -1,7 +1,22 @@
-elm-stuff/
-elm.js
-index.html
-out/
 node_modules/
+
+# Vite build output
+dist/
+dist-ssr/
+*.local
+
+# Old build artifacts (can be removed after cleanup)
 hp41.js
 hp41.js.map
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Editor directories
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
