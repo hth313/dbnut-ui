@@ -191,6 +191,7 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     lcdTextElement.setAttribute('x', '30');
     lcdTextElement.setAttribute('y', '48');
     lcdTextElement.setAttribute('xml:space', 'preserve');
+    lcdTextElement.style.whiteSpace = 'pre';
     lcdTextElement.textContent = lcdText || "MEMORY LOST";
     svg.appendChild(lcdTextElement);
 
@@ -201,6 +202,7 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     annElement.setAttribute('x', '30');
     annElement.setAttribute('y', '62');
     annElement.setAttribute('xml:space', 'preserve');
+    annElement.style.whiteSpace = 'pre';
     annElement.setAttribute('font-family', 'Andale Mono');
     annElement.textContent = annunciators || "";
     svg.appendChild(annElement);
