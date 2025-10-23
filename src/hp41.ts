@@ -1,7 +1,7 @@
 // Direct WebSocket connection (like the working Elm client)
 const ws = new WebSocket("ws://localhost:8080");
 
-let heartbeatInterval: number;
+let heartbeatInterval: ReturnType<typeof setInterval>;
 
 ws.addEventListener("open", () => {
   console.log("WebSocket connected");
