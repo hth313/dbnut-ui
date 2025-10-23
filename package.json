@@ -1,9 +1,15 @@
 {
   "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "esbuild": "^0.24.2"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "esbuild": "^0.24.2",
+    "vite": "^7.1.12"
   },
   "overrides": {
     "tr46": ">=2.1.0",
@@ -11,12 +17,9 @@
     "whatwg-url": ">=8.2.0"
   },
   "scripts": {
-    "compile": "npm run check-types && node esbuild.js",
-    "check-types": "tsc --noEmit",
-    "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "vscode:prepublish": "npm run package",
-    "package": "npm run check-types && node esbuild.js --production"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "check-types": "tsc --noEmit"
   }
 }
