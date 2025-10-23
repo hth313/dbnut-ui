@@ -14,7 +14,6 @@ export function useWebSocket(url: string) {
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
 
   useEffect(() => {
-    console.log("Attempting to connect to WebSocket:", url);
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
@@ -81,7 +80,6 @@ export function useWebSocket(url: string) {
 
     // Cleanup on unmount
     return () => {
-      console.log("Cleaning up WebSocket connection");
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }

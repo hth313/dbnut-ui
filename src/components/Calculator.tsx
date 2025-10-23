@@ -255,9 +255,9 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     const lcdTextElement = svgRef.current.querySelector('#lcdText');
     if (lcdTextElement) {
       // Empty string means blank display - use a single space to clear it visually
-      const displayText = lcdText === '' ? ' ' : lcdText;
+      // Replace regular spaces with non-breaking spaces to preserve leading/trailing spaces
+      const displayText = lcdText === '' ? '\u00A0' : lcdText.replace(/ /g, '\u00A0');
       lcdTextElement.textContent = displayText;
-      console.log('LCD updated - length:', lcdText.length, 'value:', JSON.stringify(lcdText));
     }
   }, [lcdText]);
 
