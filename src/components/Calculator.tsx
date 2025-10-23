@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import * as keys from '../constants/keyCodes';
 
 interface CalculatorProps {
@@ -61,17 +61,7 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
     };
   }, []);
 
-  const handleKeyPress = (code: number) => {
-    onKeyEvent("key_press", code);
-    updateKeyVisuals(code, true);
-  };
-
-  const handleKeyRelease = (code: number) => {
-    onKeyEvent("key_release", code);
-    updateKeyVisuals(code, false);
-  };
-
-  const updateKeyVisuals = (code: number, isPressed: boolean) => {
+  const updateKeyVisuals = useCallback((code: number, isPressed: boolean) => {
     const rockerInfo = rockerRef.current.get(code);
     const keyInfo = keyMapRef.current.get(code);
     const calculator = svgRef.current;
@@ -99,7 +89,17 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
         }
       }
     }
-  };
+  }, []);
+
+  const handleKeyPress = useCallback((code: number) => {
+    onKeyEvent("key_press", code);
+    updateKeyVisuals(code, true);
+  }, [onKeyEvent, updateKeyVisuals]);
+
+  const handleKeyRelease = useCallback((code: number) => {
+    onKeyEvent("key_release", code);
+    updateKeyVisuals(code, false);
+  }, [onKeyEvent, updateKeyVisuals]);
 
   const createRockerKey = (xpos: number, name: string, code: number, direction: number, buddyCode: number) => {
     const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
