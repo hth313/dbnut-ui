@@ -9,10 +9,12 @@ interface WebSocketMessage {
 export function useWebSocket(url: string) {
   const wsRef = useRef<WebSocket | null>(null);
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
   const [lastMessage, setLastMessage] = useState<WebSocketMessage | null>(null);
 
   useEffect(() => {
+    console.log("Attempting to connect to WebSocket:", url);
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
@@ -48,16 +50,20 @@ export function useWebSocket(url: string) {
       }, 30000);
     });
 
-    ws.addEventListener("close", () => {
-      console.log("WebSocket disconnected");
+    ws.addEventListener("close", (event) => {
+      console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason);
       setIsConnected(false);
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
       }
-      // Attempt to reconnect after 2 seconds
-      setTimeout(() => {
-        location.reload();
-      }, 2000);
+
+      // Don't auto-reload - just log the disconnection
+      // The user can manually refresh if needed
+      if (event.code === 1006) {
+        console.log("Connection failed - server may not be running at", url);
+      } else {
+        console.log("Connection closed. Refresh the page to reconnect.");
+      }
     });
 
     ws.addEventListener("error", (error) => {
@@ -75,8 +81,12 @@ export function useWebSocket(url: string) {
 
     // Cleanup on unmount
     return () => {
+      console.log("Cleaning up WebSocket connection");
       if (heartbeatIntervalRef.current) {
         clearInterval(heartbeatIntervalRef.current);
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
       }
       ws.close();
     };
