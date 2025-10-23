@@ -2,41 +2,54 @@
 const ws = new WebSocket("ws://localhost:8080");
 
 let heartbeatInterval: number;
+let isReconnecting = false;
 
 ws.addEventListener("open", () => {
   console.log("WebSocket connected");
-  // Start heartbeat every 30 seconds
+  isReconnecting = false;
+
+  // Start heartbeat every 5 seconds (aggressive to prevent timeout)
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+  }
+
   heartbeatInterval = setInterval(() => {
-    try {
-      if (ws.readyState === WebSocket.OPEN) {
+    if (ws.readyState === WebSocket.OPEN) {
+      try {
         // Send a proper JSON-RPC notification
         ws.send(JSON.stringify({
           jsonrpc: "2.0",
           method: "ping",
           params: {}
         }));
-      } else {
-        console.log("Connection not open, clearing heartbeat");
+        console.log("Ping sent");
+      } catch (e) {
+        console.error("Failed to send ping:", e);
         clearInterval(heartbeatInterval);
       }
-    } catch (e) {
-      console.log("Failed to send ping:", e);
+    } else if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
+      console.log("Connection not open (state: " + ws.readyState + "), clearing heartbeat");
       clearInterval(heartbeatInterval);
     }
-  }, 30000);
+  }, 5000);
 });
 
-ws.addEventListener("close", () => {
-  console.log("WebSocket disconnected");
+ws.addEventListener("close", (event) => {
+  console.log("WebSocket disconnected. Code:", event.code, "Reason:", event.reason);
   clearInterval(heartbeatInterval);
-  // Attempt to reconnect after 2 seconds
-  setTimeout(() => {
-    location.reload();
-  }, 2000);
+
+  if (!isReconnecting) {
+    isReconnecting = true;
+    console.log("Attempting to reconnect in 2 seconds...");
+    setTimeout(() => {
+      location.reload();
+    }, 2000);
+  }
 });
 
 ws.addEventListener("error", (error) => {
-  console.log("WebSocket error:", error);
+  console.error("WebSocket error:", error);
+  console.error("ReadyState:", ws.readyState);
 });
 
 ws.addEventListener("message", (event) => {
