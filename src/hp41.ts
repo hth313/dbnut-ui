@@ -1,19 +1,20 @@
-import {RequestManager, WebSocketTransport, Client} from "@open-rpc/client-js";
+// Direct WebSocket connection (like the working Elm client)
+const ws = new WebSocket("ws://localhost:8080");
 
-const transport = new WebSocketTransport("http://localhost:8080");
-const client = new Client(new RequestManager([transport]));
+let heartbeatInterval: number;
 
-let heartbeatInterval: NodeJS.Timeout;
-
-// Add connection event handlers
-transport.connection.addEventListener("open", () => {
+ws.addEventListener("open", () => {
   console.log("WebSocket connected");
-  // Start heartbeat every 15 seconds
+  // Start heartbeat every 30 seconds
   heartbeatInterval = setInterval(() => {
     try {
-      // Check if connection is still open before sending ping
-      if (transport.connection.readyState === WebSocket.OPEN) {
-        client.notify({ method: "ping", params: {} });
+      if (ws.readyState === WebSocket.OPEN) {
+        // Send a proper JSON-RPC notification
+        ws.send(JSON.stringify({
+          jsonrpc: "2.0",
+          method: "ping",
+          params: {}
+        }));
       } else {
         console.log("Connection not open, clearing heartbeat");
         clearInterval(heartbeatInterval);
@@ -22,10 +23,10 @@ transport.connection.addEventListener("open", () => {
       console.log("Failed to send ping:", e);
       clearInterval(heartbeatInterval);
     }
-  }, 15000);
+  }, 30000);
 });
 
-transport.connection.addEventListener("close", () => {
+ws.addEventListener("close", () => {
   console.log("WebSocket disconnected");
   clearInterval(heartbeatInterval);
   // Attempt to reconnect after 2 seconds
@@ -34,11 +35,29 @@ transport.connection.addEventListener("close", () => {
   }, 2000);
 });
 
-transport.connection.addEventListener("error", (error) => {
+ws.addEventListener("error", (error) => {
   console.log("WebSocket error:", error);
 });
 
-client.onNotification(lcdUpdate);
+ws.addEventListener("message", (event) => {
+  try {
+    const message = JSON.parse(event.data);
+    lcdUpdate(message);
+  } catch (e) {
+    console.log("Failed to parse message:", e);
+  }
+});
+
+// Helper function to send JSON-RPC notifications
+function sendNotification(method: string, params: any): void {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({
+      jsonrpc: "2.0",
+      method: method,
+      params: params
+    }));
+  }
+}
 
 interface KeyInfo {
   normal: HTMLImageElement;
@@ -168,7 +187,7 @@ function positionRockerKey(what, rockerInfo, keyInfo, direction) {
 }
 
 function keyMouseEvent(what, code): void {
-  client.notify( { method: what, params: { code: code, timestamp: Date.now() } });
+  sendNotification(what, { code: code, timestamp: Date.now() });
   const rockerInfo = rocker.get(code);
   const info = keyMap.get(code);
   const calculator = document.getElementById("calculator");

@@ -1,12 +1,8 @@
 {
   "dependencies": {
-    "@open-rpc/client-js": "^1.8.1",
-    "events": "^3.3.0",
     "typescript": "^5.7.2"
   },
   "devDependencies": {
-    "@types/node": "^22.10.7",
-    "@types/ws": "^8.5.13",
     "esbuild": "^0.24.2"
   },
   "overrides": {
