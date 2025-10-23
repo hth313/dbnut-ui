@@ -11,10 +11,12 @@ function App() {
   useEffect(() => {
     if (lastMessage && lastMessage.method === 'lcd-update') {
       const params = lastMessage.params;
-      if (params.lcd) {
+      console.log('Received lcd-update:', params);
+      if (params.lcd !== undefined) {
+        console.log('Setting LCD text - length:', params.lcd.length, 'value:', JSON.stringify(params.lcd));
         setLcdText(params.lcd);
       }
-      if (params.ann) {
+      if (params.ann !== undefined) {
         setAnnunciators(params.ann);
       }
     }

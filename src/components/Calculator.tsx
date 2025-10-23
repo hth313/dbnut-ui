@@ -261,6 +261,7 @@ export function Calculator({ onKeyEvent, lcdText, annunciators }: CalculatorProp
       // Replace regular spaces with non-breaking spaces so they render in SVG
       const displayText = lcdText.replace(/ /g, '\u00A0');
       lcdTextElement.textContent = displayText;
+      console.log('LCD updated - length:', lcdText.length, 'value:', JSON.stringify(lcdText));
     }
   }, [lcdText]);
 
