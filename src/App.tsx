@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Calculator } from './components/Calculator';
 import { useWebSocket } from './hooks/useWebSocket';
+import './App.css';
 
 function App() {
   const { isConnected, lastMessage, sendNotification } = useWebSocket('ws://localhost:8080');
@@ -28,22 +29,10 @@ function App() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: '20px',
-      minHeight: '100vh',
-      backgroundColor: '#f0f0f0'
-    }}>
-      <h1 style={{ marginBottom: '20px' }}>HP-41 Calculator</h1>
+    <div className="app-container">
+      <h1 className="app-title">HP-41 Calculator</h1>
 
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '10px',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-      }}>
+      <div className="calculator-wrapper">
         <Calculator
           onKeyEvent={handleKeyEvent}
           lcdText={lcdText}
@@ -51,7 +40,7 @@ function App() {
         />
       </div>
 
-      <div style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
+      <div className="connection-status">
         Status: {isConnected ? '🟢 Connected' : '🔴 Disconnected'}
       </div>
     </div>

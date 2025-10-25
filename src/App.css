@@ -1,0 +1,25 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.app-title {
+  margin-bottom: 20px;
+}
+
+.calculator-wrapper {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.connection-status {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
