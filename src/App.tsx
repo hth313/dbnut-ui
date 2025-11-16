@@ -4,7 +4,7 @@ import { useWebSocket } from './hooks/useWebSocket';
 import './App.css';
 
 function App() {
-  const { isConnected, lastMessage, sendNotification } = useWebSocket('ws://localhost:8080');
+  const { isConnected, lastMessage, sendNotification } = useWebSocket('ws://localhost:8977');
   const [lcdText, setLcdText] = useState('MEMORY LOST');
   const [annunciators, setAnnunciators] = useState('');
 
