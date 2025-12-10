@@ -5,7 +5,7 @@ import './App.css';
 
 function App() {
   const { isConnected, lastMessage, sendNotification } = useWebSocket('ws://localhost:8977');
-  const [lcdText, setLcdText] = useState('MEMORY LOST');
+  const [lcdText, setLcdText] = useState('            ');
   const [annunciators, setAnnunciators] = useState('');
 
   // Handle incoming WebSocket messages
