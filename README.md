@@ -41,8 +41,8 @@ Keyboard mappings
 | + U | U       |
 | 4 V | 4 V     |
 | 5 W | 5 W     |
-| 6X  | 6 X     |
-| X (times) Y | Y |
+| 6 X | 6 X     |
+| &#x00D7; (multiply) Y | Y |
 | 1 Z | 1 Z     |
 | 2 = | 2 =     |
 | 3 ? | 3       |
